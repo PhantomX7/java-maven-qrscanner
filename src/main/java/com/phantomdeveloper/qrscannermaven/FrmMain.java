@@ -50,10 +50,15 @@ public class FrmMain extends javax.swing.JFrame implements Runnable, ThreadFacto
     private Webcam webcam = null;
     private WebcamPanel webPanel = null;
 
+    private boolean waiting = true;
+    private int waitingCounter = 0;
+    private boolean greeting = false;
+    private int greetCounter = 0;
+
     public FrmMain() {
         initComponents();
         setTitle("Qr Code Scanner");
-
+        setResizable(false);
         setLocationRelativeTo(null);
 
         Dimension size = new Dimension(640, 480);
@@ -89,11 +94,11 @@ public class FrmMain extends javax.swing.JFrame implements Runnable, ThreadFacto
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        txtResult = new javax.swing.JTextArea();
         btnSignIn = new javax.swing.JButton();
         btnSignOut = new javax.swing.JButton();
         lblStatus = new javax.swing.JLabel();
+        lblText = new javax.swing.JLabel();
+        lblGreet = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -101,12 +106,7 @@ public class FrmMain extends javax.swing.JFrame implements Runnable, ThreadFacto
         jPanel1.setPreferredSize(new java.awt.Dimension(640, 420));
         jPanel1.setLayout(new java.awt.CardLayout());
 
-        txtResult.setEditable(false);
-        txtResult.setColumns(20);
-        txtResult.setRows(5);
-        jScrollPane1.setViewportView(txtResult);
-
-        btnSignIn.setFont(new java.awt.Font("Calibri", 0, 14)); // NOI18N
+        btnSignIn.setFont(new java.awt.Font("Calibri", 0, 36)); // NOI18N
         btnSignIn.setText("Sign in");
         btnSignIn.setEnabled(false);
         btnSignIn.addActionListener(new java.awt.event.ActionListener() {
@@ -115,7 +115,7 @@ public class FrmMain extends javax.swing.JFrame implements Runnable, ThreadFacto
             }
         });
 
-        btnSignOut.setFont(new java.awt.Font("Calibri", 0, 14)); // NOI18N
+        btnSignOut.setFont(new java.awt.Font("Calibri", 0, 36)); // NOI18N
         btnSignOut.setText("Sign out");
         btnSignOut.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -123,9 +123,16 @@ public class FrmMain extends javax.swing.JFrame implements Runnable, ThreadFacto
             }
         });
 
-        lblStatus.setFont(new java.awt.Font("Calibri", 0, 36)); // NOI18N
+        lblStatus.setFont(new java.awt.Font("Calibri", 0, 48)); // NOI18N
         lblStatus.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblStatus.setText("Scan to sign in");
+
+        lblText.setFont(new java.awt.Font("Calibri", 0, 36)); // NOI18N
+        lblText.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblText.setText("waiting");
+
+        lblGreet.setFont(new java.awt.Font("Calibri", 0, 36)); // NOI18N
+        lblGreet.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -136,11 +143,12 @@ public class FrmMain extends javax.swing.JFrame implements Runnable, ThreadFacto
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(37, 37, 37)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 467, Short.MAX_VALUE)
                     .addComponent(btnSignIn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnSignOut, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lblStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(76, Short.MAX_VALUE))
+                    .addComponent(lblStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 467, Short.MAX_VALUE)
+                    .addComponent(lblText, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblGreet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(67, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -149,31 +157,49 @@ public class FrmMain extends javax.swing.JFrame implements Runnable, ThreadFacto
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lblStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(75, 75, 75)
+                        .addComponent(lblText, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblGreet, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(39, 39, 39)
+                        .addComponent(btnSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnSignIn)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnSignOut))
+                        .addComponent(btnSignOut, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(146, Short.MAX_VALUE))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignInActionPerformed
-        btnSignIn.setEnabled(false);
-        btnSignOut.setEnabled(true);
-        lblStatus.setText("Scan to sign in");
-        status = Status.SIGN_IN;
+        try {
+            if (JOptionPane.showInputDialog(this, "input password").equals("admin")) {
+                btnSignIn.setEnabled(false);
+                btnSignOut.setEnabled(true);
+                lblStatus.setText("Scan to sign in");
+                status = Status.SIGN_IN;
+            } else {
+                JOptionPane.showMessageDialog(this, "you dont have privilege");
+            }
+        } catch (NullPointerException e) {
+
+        }
     }//GEN-LAST:event_btnSignInActionPerformed
 
     private void btnSignOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignOutActionPerformed
-        btnSignIn.setEnabled(true);
-        btnSignOut.setEnabled(false);
-        lblStatus.setText("Scan to sign out");
-        status = Status.SIGN_OUT;
+        try {
+            if (JOptionPane.showInputDialog(this, "input password").equals("admin")) {
+                btnSignIn.setEnabled(true);
+                btnSignOut.setEnabled(false);
+                lblStatus.setText("Scan to sign out");
+                status = Status.SIGN_OUT;
+            } else {
+                JOptionPane.showMessageDialog(this, "you dont have privilege");
+            }
+        } catch (NullPointerException e) {
+
+        }
     }//GEN-LAST:event_btnSignOutActionPerformed
 
     /**
@@ -215,9 +241,9 @@ public class FrmMain extends javax.swing.JFrame implements Runnable, ThreadFacto
     private javax.swing.JButton btnSignIn;
     private javax.swing.JButton btnSignOut;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblGreet;
     private javax.swing.JLabel lblStatus;
-    private javax.swing.JTextArea txtResult;
+    private javax.swing.JLabel lblText;
     // End of variables declaration//GEN-END:variables
 
     @Override
@@ -225,6 +251,8 @@ public class FrmMain extends javax.swing.JFrame implements Runnable, ThreadFacto
         do {
             try {
                 Thread.sleep(100);
+                checkWaiting();
+                checkGreeting();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -247,12 +275,39 @@ public class FrmMain extends javax.swing.JFrame implements Runnable, ThreadFacto
             }
 
             if (result != null) {
-                txtResult.setText(result.getText());
                 int length = result.getText().length();
                 String key = result.getText().substring(length - 32, length);
                 generateResult(key);
             }
         } while (true);
+    }
+
+    private void checkWaiting() {
+        if (waiting) {
+            waitingCounter++;
+            if (waitingCounter % 8 == 0) {
+                lblText.setText(lblText.getText().toString() + ".");
+            }
+            if (lblText.getText().toString().equals("waiting.....")) {
+                lblText.setText("waiting");
+            }
+        } else {
+            waitingCounter++;
+            if (waitingCounter == 20) {
+                lblText.setText("waiting");
+                waiting = true;
+            }
+        }
+    }
+
+    private void checkGreeting() {
+        if (greeting) {
+            greetCounter++;
+            if (greetCounter == 30) {
+                greeting = false;
+                lblGreet.setText("");
+            }
+        }
     }
 
     private void generateResult(String key) {
@@ -263,32 +318,56 @@ public class FrmMain extends javax.swing.JFrame implements Runnable, ThreadFacto
             // Execute SQL query
             myRs = myStmt.executeQuery();
             // Process result set
-            while (myRs.next()) {
-                switch (status) {
-                    case SIGN_IN:
-                        if (!myRs.getBoolean("sign_in")) {
-                            JOptionPane.showMessageDialog(this, "Welcome " + myRs.getString("nama"));
-                            signIn(key);
-                        } else {
-                            JOptionPane.showMessageDialog(this, "You had signed in");
-                        }
-                        break;
-                    case SIGN_OUT:
-                        if (!myRs.getBoolean("sign_out")) {
-                            JOptionPane.showMessageDialog(this, "Thanks " + myRs.getString("nama")+" for paticipating");
-                            signOut(key);
-                        } else {
-                            JOptionPane.showMessageDialog(this, "You had signed out");
-                        }
-                        break;
-                }
+            if (myRs.isBeforeFirst()) {
+                while (myRs.next()) {
+                    switch (status) {
+                        case SIGN_IN:
+                            if (!myRs.getBoolean("sign_in")) {
+                                lblText.setText("Signed in");
+                                greetSignIn(myRs.getString("nama"));
+                                signIn(key);
+                            } else {
+                                lblText.setText("You had signed in");
+                            }
+                            resetWait();
+                            break;
+                        case SIGN_OUT:
+                            if (!myRs.getBoolean("sign_out")) {
+                                lblText.setText("Signed out");
+                                greetSignOut(myRs.getString("nama"));
+                                signOut(key);
+                            } else {
+                                lblText.setText("You had signed out");
+                            }
+                            resetWait();
+                            break;
+                    }
 
+                }
+            } else {
+                lblText.setText("Invalid qr code...");
+                resetWait();
             }
             myStmt.close();
             myRs.close();
         } catch (SQLException ex) {
             Logger.getLogger(FrmMain.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void resetWait() {
+        waiting = false;
+        waitingCounter = 0;
+    }
+
+    private void greetSignIn(String nama) {
+        lblGreet.setText("Welcome " + nama);
+        greeting = true;
+    }
+
+    private void greetSignOut(String nama) {
+        lblGreet.setText("Thank you " + nama + ", for paticipating");
+        greeting = true;
     }
 
     private void signIn(String key) {
